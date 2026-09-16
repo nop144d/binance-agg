@@ -1,0 +1,60 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Linux" ] }
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release",
+      "inherits": "linux-base",
+      "binaryDir": "${sourceDir}/build/linux/release",
+      "toolchainFile": "${sourceDir}/build/linux/release/generators/conan_toolchain.cmake",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux Debug",
+      "inherits": "linux-base",
+      "binaryDir": "${sourceDir}/build/linux/debug",
+      "toolchainFile": "${sourceDir}/build/linux/debug/generators/conan_toolchain.cmake",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "windows-msvc",
+      "displayName": "Windows MSVC (Visual Studio 2026)",
+      "generator": "Visual Studio 18 2026",
+      "architecture": { "value": "x64", "strategy": "set" },
+      "binaryDir": "${sourceDir}/build/windows",
+      "toolchainFile": "${sourceDir}/build/windows/generators/conan_toolchain.cmake",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] }
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "linux-release", "configurePreset": "linux-release" },
+    { "name": "linux-debug", "configurePreset": "linux-debug" },
+    { "name": "windows-release", "configurePreset": "windows-msvc", "configuration": "Release" },
+    { "name": "windows-debug", "configurePreset": "windows-msvc", "configuration": "Debug" }
+  ],
+  "testPresets": [
+    {
+      "name": "test-base",
+      "hidden": true,
+      "output": { "outputOnFailure": true }
+    },
+    { "name": "linux-release", "inherits": "test-base", "configurePreset": "linux-release" },
+    { "name": "linux-debug", "inherits": "test-base", "configurePreset": "linux-debug" },
+    { "name": "windows-release", "inherits": "test-base", "configurePreset": "windows-msvc", "configuration": "Release" },
+    { "name": "windows-debug", "inherits": "test-base", "configurePreset": "windows-msvc", "configuration": "Debug" }
+  ]
+}

@@ -1,0 +1,8 @@
+build/
+out/
+.vs/
+CMakeUserPresets.json
+compile_commands.json
+.cache/
+*.log
+/aggregates.txt

@@ -1,0 +1,6 @@
+{
+  "symbols": ["btcusdt", "ethusdt", "bnbusdt"],
+  "window_ms": 10000,
+  "flush_interval_ms": 5000,
+  "output_file": "aggregates.txt"
+}
