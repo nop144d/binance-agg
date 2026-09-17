@@ -11,10 +11,11 @@ namespace binagg
         std::cerr << what << ": " << ec.message() << "\n";
     }
 
-    void WSSession::run(std::string host, std::string port, std::string target)
+    void WSSession::run(std::string host, std::string port, std::string target, std::function<void(std::string_view)> on_message)
     {
         host_ = std::move(host);
         target_ = std::move(target);
+        on_message_ = on_message;
 
         ws_.next_layer().set_verify_callback(ssl::host_name_verification(host_.c_str()));
 
@@ -98,7 +99,7 @@ namespace binagg
         if (ec)
             return fail(ec, "read");
 
-        std::cout << beast::make_printable(buffer_.data()) << "\n";
+        on_message_(std::string_view(static_cast<const char*>(buffer_.data().data()), buffer_.data().size()));
 
         buffer_.consume(buffer_.size());
         do_read();
@@ -107,7 +108,7 @@ namespace binagg
     void WSSession::on_close(beast::error_code ec)
     {
         if (ec) return fail(ec, "close");
-        std::cout << beast::make_printable(buffer_.data()) << std::endl;
+        on_message_(std::string_view(static_cast<const char*>(buffer_.data().data()), buffer_.data().size()));
     }
 
 } // namespace binagg

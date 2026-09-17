@@ -1,9 +1,14 @@
 #include <iostream>
+#include <string_view>
 
 #include "app/Config.hpp"
 #include "app/WSSession.hpp"
 
 using namespace binagg;
+
+void on_message(std::string_view message) {
+	std::cout << "Received message: " << message << std::endl;
+}
 
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
@@ -45,7 +50,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "Output File: " << conf.GetOutputFile() << std::endl;
 
 		net::io_context ioc;
-		std::make_shared<WSSession>(ioc, ctx)->run(std::move(host), std::move(port), std::move(target));
+		std::make_shared<WSSession>(ioc, ctx)->run(std::move(host), std::move(port), std::move(target), on_message);
 
 		ioc.run();
 	}

@@ -12,6 +12,7 @@
 #include <boost/asio/strand.hpp>
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -32,7 +33,7 @@ namespace binagg
         {
         }
 
-        void run(std::string host, std::string port, std::string target);
+        void run(std::string host, std::string port, std::string target, std::function<void(std::string_view)> on_message);
 
     private:
         void on_resolve(beast::error_code ec, tcp::resolver::results_type results);
@@ -48,6 +49,7 @@ namespace binagg
         beast::flat_buffer buffer_;
         std::string host_;
         std::string target_;
+		std::function<void(std::string_view)> on_message_;
     };
 
     void fail(beast::error_code ec, char const* what);
