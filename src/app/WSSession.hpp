@@ -3,16 +3,6 @@
 // based on the Boost.Beast WebSocket SSL client example:
 // https://github.com/boostorg/beast/blob/develop/example/websocket/client/async-ssl/websocket_client_async_ssl.cpp
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/beast/ssl.hpp>
-#include <boost/beast/websocket/ssl.hpp>
-#include <boost/asio/ssl.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/strand.hpp>
-#include <memory>
-#include <string>
-#include <string_view>
 
 namespace beast = boost::beast;
 namespace http = beast::http;

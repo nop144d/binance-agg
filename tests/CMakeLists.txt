@@ -18,4 +18,7 @@ target_compile_definitions(binance_agg_tests
     PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data"
 )
 
+# On top of the core PCH inherited from binance_agg_core.
+target_precompile_headers(binance_agg_tests PRIVATE <gtest/gtest.h>)
+
 gtest_discover_tests(binance_agg_tests DISCOVERY_MODE PRE_TEST)

@@ -23,6 +23,9 @@ target_link_libraries(binance_agg_core
         binance_agg_options
 )
 
+# PUBLIC: the executable and the tests reuse this header list in their own PCH.
+target_precompile_headers(binance_agg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/core/pch.hpp)
+
 add_executable(binance-agg main.cpp ${APP_SOURCES})
 target_link_libraries(binance-agg
     PRIVATE
@@ -33,6 +36,9 @@ target_link_libraries(binance-agg
         OpenSSL::Crypto
         Threads::Threads
 )
+
+# Adds the Boost headers on top of the core PCH inherited from binance_agg_core.
+target_precompile_headers(binance-agg PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/app/pch.hpp)
 
 # Visual Studio debugger: run from the repo root with the example config.
 set_target_properties(binance-agg PROPERTIES

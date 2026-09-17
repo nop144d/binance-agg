@@ -1,8 +1,5 @@
 #include "WSSession.hpp"
 
-#include <cstdlib>
-#include <iostream>
-
 namespace binagg
 {
 
