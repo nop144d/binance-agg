@@ -20,6 +20,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # the generator expression puts a lowercase name there instead.
 get_property(BINANCE_AGG_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(BINANCE_AGG_MULTI_CONFIG)
+    # Conan provides Debug and Release only; MinSizeRel/RelWithDebInfo would have
+    # no dependency binaries and fail at generate time.
+    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/$<LOWER_CASE:$<CONFIG>>)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
     set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/$<LOWER_CASE:$<CONFIG>>)
