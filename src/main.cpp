@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "app/Config.hpp"
 #include "app/WSSession.hpp"
 
 using namespace binagg;
@@ -17,14 +18,41 @@ int main(int argc, char* argv[]) {
 	ctx.set_verify_mode(ssl::verify_none); // Disable certificate verification for testing purposes
     ctx.set_default_verify_paths();
 
-    std::string const host{"stream.binance.com"};
-    std::string const port{"9443"};
-    std::string const target{"/stream?streams=btcusdt@trade"};
+    std::string host{"stream.binance.com"};
+    std::string port{"9443"};
+	const std::string target_base{ "/stream?streams=" };
 
-    net::io_context ioc;
-    std::make_shared<WSSession>(ioc, ctx)->run(std::move(host), std::move(port), std::move(target));
+	try {
+		std::filesystem::path config_file_path(argv[1]);
 
-    ioc.run();
+		Config conf{ config_file_path };
+		auto symbols = conf.GetSymbols();
+		std::string target = target_base;
+		for (size_t i = 0; i < symbols.size(); ++i) {
+			target += symbols[i] + "@trade";
+			if (i < symbols.size() - 1) {
+				target += "/";
+			}
+		}
+
+		std::cout << "Symbols: ";
+		for (const auto& symbol : symbols) {
+			std::cout << symbol << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "Window (ms): " << conf.GetWindowMs() << std::endl;
+		std::cout << "Flush Interval (ms): " << conf.GetFlushIntervalMs() << std::endl;
+		std::cout << "Output File: " << conf.GetOutputFile() << std::endl;
+
+		net::io_context ioc;
+		std::make_shared<WSSession>(ioc, ctx)->run(std::move(host), std::move(port), std::move(target));
+
+		ioc.run();
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
+	}
 
     return 0;
 }
