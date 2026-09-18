@@ -3,12 +3,7 @@
 namespace binagg
 {
 
-struct Trade {
-    std::string symbol;
-    double price;
-    double quantity;
-    int64_t trade_time_ms{ 0 };
-};
+struct Trade;
 
 struct WindowStats
 {
@@ -31,11 +26,9 @@ public:
 	Aggregator(int64_t window_ms);
 	Aggregator(const Aggregator&) = delete;
 	Aggregator& operator=(const Aggregator&) = delete;
-	void AddTrade(std::string_view trade);
+	void AddTrade(const Trade& trade);
 
 private:
-	static std::expected<Trade, std::string> ParseTrade(std::string_view trade_str);
-
 	int64_t window_ms_;
 	std::map<WindowKey, WindowStats> windows_;
 };

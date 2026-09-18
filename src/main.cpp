@@ -2,6 +2,7 @@
 #include "app/FileWriter.hpp"
 #include "app/WSSession.hpp"
 #include "core/Aggregator.hpp"
+#include "core/Trade.hpp"
 
 using namespace binagg;
 
@@ -49,7 +50,14 @@ int main(int argc, char* argv[]) {
 		FileWriter file_writer{ conf.GetOutputFile() };
 		auto on_message = [&file_writer, &agg](std::string_view msg) {
 			std::cout << "trade:\n" << msg << std::endl;
-			agg.AddTrade(msg);
+
+			auto result = Trade::FromJSON(msg);
+			if (!result) {
+				spdlog::error("Failed to parse trade: {}", result.error());
+				return;
+			}
+
+			agg.AddTrade(result.value());
 			file_writer.Write(std::string(msg));
 		};
 
