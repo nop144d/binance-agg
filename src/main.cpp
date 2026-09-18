@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 		std::filesystem::path config_file_path(argv[1]);
 
 		Config conf{ config_file_path };
-		auto symbols = conf.GetSymbols();
+		auto& symbols = conf.GetSymbols();
 		std::string target = target_base;
 		for (size_t i = 0; i < symbols.size(); ++i) {
 			target += symbols[i] + "@trade";
@@ -57,7 +57,9 @@ int main(int argc, char* argv[]) {
 				return;
 			}
 
-			agg.AddTrade(result.value());
+			if (!agg.AddTrade(result.value())) {
+				spdlog::error("Failed to add trade");
+			}
 			file_writer.Write(std::string(msg));
 		};
 
