@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <deque>
 #include <filesystem>
 #include <format>
 #include <fstream>

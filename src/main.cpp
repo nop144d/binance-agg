@@ -1,11 +1,8 @@
 #include "app/Config.hpp"
+#include "app/FileWriter.hpp"
 #include "app/WSSession.hpp"
 
 using namespace binagg;
-
-void on_message(std::string_view message) {
-	std::cout << "Received message: " << message << std::endl;
-}
 
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
@@ -46,8 +43,16 @@ int main(int argc, char* argv[]) {
 		std::cout << "Flush Interval (ms): " << conf.GetFlushIntervalMs() << std::endl;
 		std::cout << "Output File: " << conf.GetOutputFile() << std::endl;
 
+		FileWriter file_writer{ conf.GetOutputFile() };
+		auto bound_on_message = [&file_writer](std::string_view msg) {
+			file_writer.Write(std::string(msg));
+			};
+
 		net::io_context ioc;
-		std::make_shared<WSSession>(ioc, ctx)->run(std::move(host), std::move(port), std::move(target), on_message);
+		std::make_shared<WSSession>(ioc, ctx)->run(
+			std::move(host),
+			std::move(port),
+			std::move(target), bound_on_message);
 
 		ioc.run();
 	}
