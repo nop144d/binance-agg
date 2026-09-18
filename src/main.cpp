@@ -1,5 +1,5 @@
 #include "app/App.hpp"
-#include "app/Config.hpp"
+#include "core/Config.hpp"
 
 #include <spdlog/cfg/env.h>
 #include <spdlog/sinks/stdout_color_sinks.h>

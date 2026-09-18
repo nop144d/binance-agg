@@ -19,6 +19,7 @@ target_link_libraries(binance_agg_core
     PUBLIC
         nlohmann_json::nlohmann_json
         spdlog::spdlog
+        Threads::Threads
     PRIVATE
         binance_agg_options
 )

@@ -4,9 +4,13 @@ namespace binagg
 {
 
 FileWriter::FileWriter(const std::string& output_file) :
-	output_(output_file, std::ios::out | std::ios::app),
-	thread_([this](std::stop_token stop_requested) { Run(std::move(stop_requested)); })
+	output_(output_file, std::ios::out | std::ios::app)
 {
+	if (!output_) {
+		throw std::runtime_error("cannot open output file: " + output_file);
+	}
+
+	thread_ = std::jthread([this](std::stop_token stop_requested) { Run(std::move(stop_requested)); });
 }
 
 FileWriter::~FileWriter() {
