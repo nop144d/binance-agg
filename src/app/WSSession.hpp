@@ -14,34 +14,50 @@ using tcp = boost::asio::ip::tcp;
 namespace binagg
 {
 
-    class WSSession : public std::enable_shared_from_this<WSSession>
-    {
-    public:
-        explicit WSSession(net::io_context& ioc, ssl::context& ctx)
-            : resolver_(net::make_strand(ioc))
-            , ws_(net::make_strand(ioc), ctx)
-        {
-        }
+	class WSSession : public std::enable_shared_from_this<WSSession>
+	{
+	public:
+		using MessageHandler = std::function<void(std::string_view)>;
 
-        void run(std::string host, std::string port, std::string target, std::function<void(std::string_view)> on_message);
+		// Called exactly once when the session ends. The code is empty for a
+		// close we asked for, and carries the failure otherwise.
+		using CloseHandler = std::function<void(beast::error_code)>;
 
-    private:
-        void on_resolve(beast::error_code ec, tcp::resolver::results_type results);
-        void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep);
-        void on_ssl_handshake(beast::error_code ec);
-        void on_handshake(beast::error_code ec);
-        void do_read();
-        void on_read(beast::error_code ec, std::size_t bytes_transferred);
-        void on_close(beast::error_code ec);
+		explicit WSSession(net::io_context& ioc, ssl::context& ctx)
+			: resolver_(net::make_strand(ioc))
+			, ws_(net::make_strand(ioc), ctx)
+		{
+		}
 
-        tcp::resolver resolver_;
-        websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws_;
-        beast::flat_buffer buffer_;
-        std::string host_;
-        std::string target_;
-		std::function<void(std::string_view)> on_message_;
-    };
+		void run(std::string host, std::string port, std::string target,
+			MessageHandler on_message, CloseHandler on_close);
 
-    void fail(beast::error_code ec, char const* what);
+		// Starts a graceful close, or cancels a connection still being set up.
+		// Safe to call more than once and from outside the strand.
+		void close();
+
+	private:
+		void do_close();
+		void on_resolve(beast::error_code ec, tcp::resolver::results_type results);
+		void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep);
+		void on_ssl_handshake(beast::error_code ec);
+		void on_handshake(beast::error_code ec);
+		void do_read();
+		void on_read(beast::error_code ec, std::size_t bytes_transferred);
+		void on_close(beast::error_code ec);
+		void fail(beast::error_code ec, char const* what);
+		void finish(beast::error_code ec);
+
+		tcp::resolver resolver_;
+		websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws_;
+		beast::flat_buffer buffer_;
+		std::string host_;
+		std::string target_;
+		MessageHandler on_message_;
+		CloseHandler on_close_;
+		bool connected_{ false };
+		bool closing_{ false };
+		bool finished_{ false };
+	};
 
 } // namespace binagg
