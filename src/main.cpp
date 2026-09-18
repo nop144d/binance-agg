@@ -1,6 +1,7 @@
 #include "app/Config.hpp"
 #include "app/FileWriter.hpp"
 #include "app/WSSession.hpp"
+#include "core/Aggregator.hpp"
 
 using namespace binagg;
 
@@ -43,16 +44,20 @@ int main(int argc, char* argv[]) {
 		std::cout << "Flush Interval (ms): " << conf.GetFlushIntervalMs() << std::endl;
 		std::cout << "Output File: " << conf.GetOutputFile() << std::endl;
 
+		Aggregator agg{ conf.GetWindowMs() };
+
 		FileWriter file_writer{ conf.GetOutputFile() };
-		auto bound_on_message = [&file_writer](std::string_view msg) {
+		auto on_message = [&file_writer, &agg](std::string_view msg) {
+			std::cout << "trade:\n" << msg << std::endl;
+			agg.AddTrade(msg);
 			file_writer.Write(std::string(msg));
-			};
+		};
 
 		net::io_context ioc;
 		std::make_shared<WSSession>(ioc, ctx)->run(
 			std::move(host),
 			std::move(port),
-			std::move(target), bound_on_message);
+			std::move(target), on_message);
 
 		ioc.run();
 	}
