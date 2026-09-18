@@ -5,7 +5,7 @@ namespace binagg
 
     void fail(beast::error_code ec, char const* what)
     {
-        std::cerr << what << ": " << ec.message() << "\n";
+        spdlog::error("{}: {}", what, ec.message());
     }
 
     void WSSession::run(std::string host, std::string port, std::string target, std::function<void(std::string_view)> on_message)
@@ -75,7 +75,7 @@ namespace binagg
         if (ec)
             return fail(ec, "handshake");
 
-        std::cout << "Connected to Binance! Streaming trades...\n";
+        spdlog::info("connected, streaming trades");
 
         do_read();
     }

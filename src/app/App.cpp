@@ -32,14 +32,9 @@ int App::Run()
 		}
 	}
 
-	std::cout << "Symbols: ";
-	for (const auto& symbol : symbols) {
-		std::cout << symbol << " ";
-	}
-	std::cout << std::endl;
-	std::cout << "Window (ms): " << config_->GetWindowMs() << std::endl;
-	std::cout << "Flush Interval (ms): " << config_->GetFlushIntervalMs() << std::endl;
-	std::cout << "Output File: " << config_->GetOutputFile() << std::endl;
+	spdlog::info("config: window={}ms flush={}ms output={}",
+		config_->GetWindowMs(), config_->GetFlushIntervalMs(), config_->GetOutputFile());
+	spdlog::info("connecting to wss://{}:{}{}", host, port, target);
 
 	Aggregator agg{ config_->GetWindowMs() };
 	FileWriter file_writer{ config_->GetOutputFile() };
@@ -54,10 +49,10 @@ int App::Run()
 		}
 
 		if (!agg.AddTrade(result.value())) {
-			spdlog::error("Failed to add trade");
+			spdlog::warn("Dropped late trade for an already-extracted window");
 		}
 		file_writer.Write(std::string(msg));
-		};
+	};
 
 	net::io_context ioc;
 	std::make_shared<WSSession>(ioc, ctx)->run(

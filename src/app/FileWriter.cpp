@@ -38,7 +38,7 @@ void FileWriter::Write(std::string data)
 	{
 		std::lock_guard lock(mutex_);
 		if (stop_requested_) {
-			std::cerr << "write after stop: " << data.size() << " bytes discarded" << std::endl;
+			spdlog::error("write after stop: {} bytes discarded", data.size());
 			return;
 		}
 		queue_.push_back(std::move(data));
@@ -68,7 +68,7 @@ void FileWriter::Run(std::stop_token stop_requested) {
             combined += block;
         }
 
-		std::cout << "Writing " << combined.size() << " bytes to file" << std::endl;
+		spdlog::debug("writing {} bytes to output file", combined.size());
 
 		output_ << combined;
 		output_.flush();
